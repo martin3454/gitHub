@@ -39,33 +39,26 @@
 
 
 typedef struct{
-
 	uint8_t x;
 	uint8_t y;
-
 }Cord;
 
 
 typedef struct Node{
-
 	Cord souradnice;
 	struct Node *next;
 	struct Node *prev;
-
 }Node;
 
 
 typedef struct{
-
 	Node *head;
 	Node *tail;
-
 }Seznam;
 
 
 
 Node* cre(Cord cor){
-
 	Node *pt=(Node*)malloc(sizeof(Node));
 	pt->next = NULL;
 	pt->prev = NULL;
@@ -155,7 +148,6 @@ int main(void)
 
 				//dole
 				if(((PTA->PDIR & M_SW1) == 0) && (smer == 'r' || smer == 'l')){
-
 					krokX = 0;
 					krokY = 1;
 					smer = 'd';
@@ -163,7 +155,6 @@ int main(void)
 
 				//up
 				if(((PTA->PDIR & M_SW2) == 0) && (smer == 'r' || smer == 'l')){
-
 					krokX = 0;
 					krokY = -1;
 					smer = 'u';
@@ -171,7 +162,6 @@ int main(void)
 
 				//left
 				if(((PTA->PDIR & M_SW3) == 0) && (smer == 'd' || smer == 'u') ){
-
 					krokX = -1;
 					krokY = 0;
 					smer = 'l';
@@ -179,7 +169,6 @@ int main(void)
 
 				//right
 				if(((PTA->PDIR & M_SW4) == 0) && (smer == 'd' || smer == 'u')){
-
 					krokX = 1;
 					krokY = 0;
 					smer = 'r';
@@ -202,8 +191,6 @@ int main(void)
 				GLCD_SetPixel(pt->souradnice.x, pt->souradnice.y, 1);
 				cekej(10000);
 			}
-
-
 		}
 
 

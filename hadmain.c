@@ -1,5 +1,3 @@
-
-
 #include <header.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,7 +31,6 @@ typedef struct{
 	Node *tail;
 
 }Seznam;
-
 
 
 Node* cre(Cord cor){
@@ -76,6 +73,34 @@ void nakonec(Node **tail, uint8_t x, uint8_t y){
 	*tail = pt;
 }
 
+void init_had(Seznam *list, Cord *souradnice){
+
+	for(int i = 0;i < 17; i++){
+		list->head = listik(list->head, &list->tail, souradnice[i]);
+	}
+
+	for(Node *pt = list->head; pt != NULL; pt = pt->next){
+		GLCD_SetPixel(pt->souradnice.x, pt->souradnice.y, 1);
+	}
+
+}
+
+void list_del(Seznam *list){
+
+	Node *pt = list->head;
+	Node *pom;
+
+	while(pt != NULL){
+		pom = pt->next;
+		free(pt);
+		pt = pom;
+	}
+	list->head = list->tail = NULL;
+}
+
+
+
+
 int main(void)
 {
 
@@ -97,98 +122,108 @@ int main(void)
 		};
 
 		Cord bod={
-				50,
-				35
+				20,
+				20
 		};
 
-		Cord souradnice[3]={
+		Cord souradnice[17]={
 
 			{11,10},
 			{12,10},
 			{13,10},
-			//{14,10},
-			//{15,10},
-			//{16,10},
-			//{17,10},
-			//{18,10},
-			//{19,10},
-			//{20,10},
-			//{21,10},
-			//{22,10},
-			//{23,10},
+			{14,10},
+			{15,10},
+			{16,10},
+			{17,10},
+			{18,10},
+			{19,10},
+			{20,10},
+			{21,10},
+			{22,10},
+			{23,10},
+			{24,10},
+			{25,10},
+			{26,10},
+			{27,10},
+			{28,10},
 
 		};
 
-		for(int i = 0;i < 3; ++i){
-
-			list.head = listik(list.head, &list.tail, souradnice[i]);
-		}
-
-		for(Node *pt = list.head; pt != NULL; pt = pt->next){
-
-			GLCD_SetPixel(pt->souradnice.x, pt->souradnice.y, 1);
-
-		}
-		GLCD_SetPixel(bod.x, bod.y, 1);
-
-
+		init_had(&list, &souradnice);
 
 		char smer = 'r';
-		int krokX = 1;
-		int krokY = 0;
+		int krok_X = 1;
+		int krok_Y = 0;
 
 		while(1){
 
 			//posun
 			for(Node *ocas = list.tail;;){
 
+				if(list.head->souradnice.x >= 125 || list.head->souradnice.y >= 62 || list.head->souradnice.x <= 1 || list.head->souradnice.y <= 1){
+
+					GLCD_ClearScreen_Ddram();
+					list_del(&list);
+					init_had(&list, &souradnice);
+					smer = 'r';
+					krok_X = 1;
+					krok_Y = 0;
+					break;
+				}
+
 				//dole
 				if(((PTA->PDIR & M_SW1) == 0) && (smer == 'r' || smer == 'l')){
 
-					krokX = 0;
-					krokY = 1;
+					krok_X = 0;
+					krok_Y = 1;
 					smer = 'd';
 				}
 
 				//up
 				if(((PTA->PDIR & M_SW2) == 0) && (smer == 'r' || smer == 'l')){
 
-					krokX = 0;
-					krokY = -1;
+					krok_X = 0;
+					krok_Y = -1;
 					smer = 'u';
 				}
 
 				//left
 				if(((PTA->PDIR & M_SW3) == 0) && (smer == 'd' || smer == 'u') ){
 
-					krokX = -1;
-					krokY = 0;
+					krok_X = -1;
+					krok_Y = 0;
 					smer = 'l';
 				}
 
 				//right
 				if(((PTA->PDIR & M_SW4) == 0) && (smer == 'd' || smer == 'u')){
 
-					krokX = 1;
-					krokY = 0;
+					krok_X = 1;
+					krok_Y = 0;
 					smer = 'r';
 				}
 
 				if(ocas->prev->prev == NULL){
 					ocas->souradnice = ocas->prev->souradnice;
-					ocas->prev->souradnice.x += krokX;
-					ocas->prev->souradnice.y += krokY;
+					ocas->prev->souradnice.x += krok_X;
+					ocas->prev->souradnice.y += krok_Y;
 
 					//kontrola bodu
 					if(ocas->prev->souradnice.x == bod.x && ocas->prev->souradnice.y == bod.y){
 
 						GLCD_SetPixel(bod.x, bod.y, 0);
-						bod.x +=5;
-						GLCD_SetPixel(bod.x, bod.y, 1);
+						bod.x += 1;
+						bod.y += 1;
+
+						if(bod.x >= 80 || bod.y >= 50){
+							bod.x = 20;
+							if(bod.y > 50) bod.y = 20;
+							else bod.y += 2;
+						}
+
 						int x = list.tail->souradnice.x - list.tail->prev->souradnice.x;
 						int y = list.tail->souradnice.y - list.tail->prev->souradnice.y;
 						nakonec(&list.tail, list.tail->souradnice.x + x, list.tail->souradnice.y + y);
-
 					}
 					break;
 				}
@@ -200,11 +235,13 @@ int main(void)
 				ocas = ocas->prev;
 			}
 
+			GLCD_SetPixel(bod.x, bod.y, 1);
+
 			//vykresleni
 			for(Node *pt = list.head; pt != NULL; pt = pt->next){
 				GLCD_SetPixel(pt->souradnice.x, pt->souradnice.y, 1);
-				cekej(100000);
 			}
+			cekej(100000);
 
 		}
 
@@ -213,9 +250,3 @@ int main(void)
 ////////////////////////////////////////////////////////////////////////////////
 // EOF
 ////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-

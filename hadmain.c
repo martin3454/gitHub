@@ -9,27 +9,21 @@
 
 
 typedef struct{
-
 	uint8_t x;
 	uint8_t y;
-
 }Cord;
 
 
 typedef struct Node{
-
 	Cord souradnice;
 	struct Node *next;
 	struct Node *prev;
-
 }Node;
 
 
 typedef struct{
-
 	Node *head;
 	Node *tail;
-
 }Seznam;
 
 
